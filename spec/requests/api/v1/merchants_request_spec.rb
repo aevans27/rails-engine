@@ -15,7 +15,19 @@ describe "Internal api Merchants" do
     end
   end
 
-  it "can get one merchant by its id" do
+  it "can get merchant by id" do
+    merchant = create(:merchant, name:"Bob")
+    get "/api/v1/merchants/#{merchant.id}"
+
+    expect(response).to be_successful
+    found_merchant = JSON.parse(response.body, symbolize_names: true)
+    # expect(merchants.count).to eq(3)
+
+      expect(found_merchant).to have_key(:name)
+      expect(found_merchant[:name]).to be_an(String)
+  end
+
+  it "can get merchant items" do
     merchant_id = create(:merchant).id
     create_list(:item, 3, merchant_id: merchant_id)
   
@@ -31,12 +43,12 @@ describe "Internal api Merchants" do
 
       expect(item).to have_key(:description)
       expect(item[:description]).to be_an(String)
-require 'pry';binding.pry
+# require 'pry';binding.pry
       expect(item).to have_key(:unit_price)
-      expect(item[:unit_price]).to be_an(Float)
+      expect(item[:unit_price].to_f).to be_an(Float)
 
       expect(item).to have_key(:merchant_id)
-      expect(item[:merchant_id]).to be_an(Integer)
+      expect(item[:merchant_id].to_i).to be_an(Integer)
     end
   end
 end
