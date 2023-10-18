@@ -26,7 +26,7 @@ class Api::V1::ItemsController < ApplicationController
 
   def update
     if Item.exists?(params[:id])
-      item = Item.update(params[:id], item_params)
+      item = Item.update!(params[:id], item_params)
       if item.save
         render json: ItemSerializer.new(item)
       else

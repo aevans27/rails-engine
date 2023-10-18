@@ -92,7 +92,7 @@ describe "Internal api Items" do
     item = Item.find_by(id: id)
     expect(response.status).to eq(200)
     expect(response).to be_successful
-    
+    # require 'pry';binding.pry
     expect(item.name).to_not eq(previous_name)
     expect(item.name).to eq("Bubba")
   end
@@ -135,10 +135,10 @@ describe "Internal api Items" do
     item_merchant = JSON.parse(response.body, symbolize_names: true)[:data]
   
     expect(response).to be_successful
-  
+    # require 'pry';binding.pry
     expect(item_merchant[:id].to_i).to eq(merchant.id)
     expect(item_merchant[:attributes]).to have_key(:name)
-    expect(item_merchant[:attributes][:name]).to be_an(String)
+    expect(item_merchant[:attributes][:name]).to eq(merchant.name)
   end
 
   it "find items by name" do

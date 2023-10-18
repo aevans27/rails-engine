@@ -23,7 +23,7 @@ describe "Internal api Merchants" do
     response_body = JSON.parse(response.body, symbolize_names: true)
     merchants = response_body[:data]
     
-    expect(merchants.count).to eq(4)
+    expect(merchants.count).to eq(3)
     expect(response).to be_successful
 
     expect(merchants[:attributes]).to have_key(:name)
