@@ -65,10 +65,39 @@ describe "Internal api Merchants" do
     end
   end
 
+  it "error if merchant id is invalid" do
+    merchant_id = create(:merchant).id
+    create_list(:item, 3, merchant_id: merchant_id)
+  
+    get "/api/v1/merchants/999999999/items"
+    merchant = JSON.parse(response.body, symbolize_names: true)
+    expect(response.status).to eq(404)
+    expect(merchant).to have_key(:errors)
+    expect(merchant[:errors]).to eq("The merchant you are looking for does not exist")
+  end
+
   it "find merchant by name" do
     merchant = create(:merchant, name:"Bubba")
     get "/api/v1/merchants/find?name=bub"
     found_merchant = JSON.parse(response.body, symbolize_names: true)[:data]
     expect(found_merchant[:attributes][:name]).to eq(merchant.name)
+  end
+
+  it "error when no name given" do
+    merchant = create(:merchant, name:"Bubba")
+    get "/api/v1/merchants/find?name="
+    non_merchant = JSON.parse(response.body, symbolize_names: true)[:data]
+    expect(response.status).to eq(400)
+    expect(non_merchant).to have_key(:errors)
+    expect(non_merchant[:errors]).to eq("Name is required for search")
+  end
+
+  it "error when name cannot be found" do
+    merchant = create(:merchant, name:"Bubba")
+    get "/api/v1/merchants/find?name=Steve"
+    non_merchant = JSON.parse(response.body, symbolize_names: true)[:data]
+    expect(response.status).to eq(404)
+    expect(non_merchant).to have_key(:errors)
+    expect(non_merchant[:errors]).to eq("No merchant by that name")
   end
 end

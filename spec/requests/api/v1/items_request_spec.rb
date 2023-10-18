@@ -124,7 +124,21 @@ describe "Internal api Items" do
     expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
   end
 
-  it "can merchant from item" do
+  it "error with bad item id" do
+    merchant = create(:merchant)
+    item_list = create_list(:item, 3, merchant_id: merchant.id)
+    item = item_list.last
+  
+    headers = {"CONTENT_TYPE" => "application/json"}
+    get "/api/v1/items/999999999/merchant"
+  
+    non_item = JSON.parse(response.body, symbolize_names: true)
+    expect(response.status).to eq(404)
+    expect(non_item).to have_key(:errors)
+    expect(non_item[:errors]).to eq("Item not found")
+  end
+
+  it "can find merchant from item" do
     merchant = create(:merchant)
     item_list = create_list(:item, 3, merchant_id: merchant.id)
     item = item_list.last
@@ -164,5 +178,19 @@ describe "Internal api Items" do
       expect(item[:attributes]).to have_key(:merchant_id)
       expect(item[:attributes][:merchant_id].to_i).to be_an(Integer)
     end
+  end
+
+  it "error when no name given" do
+    merchant_id = create(:merchant).id
+    soda1 = create(:item, name: "Soda Pop", merchant_id: merchant_id)
+    soda2 = create(:item, name: "Orange Soda", merchant_id: merchant_id)
+    soda3 = create(:item, name: "Soda Cans", merchant_id: merchant_id)
+    candy = create(:item, name: "Starburst", merchant_id: merchant_id)
+    pretzels = create(:item, name: "Fosters", merchant_id: merchant_id)
+    get "/api/v1/items/find_all?name="
+    non_item = JSON.parse(response.body, symbolize_names: true)[:data]
+    expect(response.status).to eq(400)
+    expect(non_item).to have_key(:errors)
+    expect(non_item[:errors]).to eq("Name is required for search")
   end
 end
