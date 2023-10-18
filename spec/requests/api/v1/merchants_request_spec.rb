@@ -30,6 +30,15 @@ describe "Internal api Merchants" do
     expect(merchants[:attributes][:name]).to be_an(String)
   end
 
+  it "get 404 from bad merchant id" do
+    get "/api/v1/merchants/1"
+    
+    merchant = JSON.parse(response.body, symbolize_names: true)
+    expect(response.status).to eq(404)
+    expect(merchant).to have_key(:errors)
+    expect(merchant[:errors]).to eq("The merchant you are looking for does not exist")
+  end
+
   it "can get merchant items" do
     merchant_id = create(:merchant).id
     create_list(:item, 3, merchant_id: merchant_id)
@@ -60,7 +69,6 @@ describe "Internal api Merchants" do
     merchant = create(:merchant, name:"Bubba")
     get "/api/v1/merchants/find?name=bub"
     found_merchant = JSON.parse(response.body, symbolize_names: true)[:data]
-    # require 'pry';binding.pry
     expect(found_merchant[:attributes][:name]).to eq(merchant.name)
   end
 end
