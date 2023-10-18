@@ -80,7 +80,42 @@ describe "Internal api Items" do
     expect(created_item.merchant_id.to_i).to eq(item_params[:merchant_id])
   end
 
+  it "error trying to create with bad data" do
+    merchant_id = create(:merchant).id
+    item_params = ({
+                    name: '',
+                    description: '',
+                    unit_price: 20.01,
+                    merchant_id: merchant_id
+                  })
+    headers = {"CONTENT_TYPE" => "application/json"}
+  
+    # We include this header to make sure that these params are passed as JSON rather than as plain text
+    post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+    item = JSON.parse(response.body, symbolize_names: true)
+    expect(response.status).to eq(404)
+    expect(item).to have_key(:errors)
+    expect(item[:errors]).to eq("Item not created")
+  end
+
   it "can update an existing item" do
+    merchant_id = create(:merchant).id
+    id = create(:item, merchant_id: merchant_id).id
+    previous_name = Item.last.name
+    item_params = { name: "Bubba", merchant_id: merchant_id }
+    headers = {"CONTENT_TYPE" => "application/json"}
+  
+    # We include this header to make sure that these params are passed as JSON rather than as plain text
+    patch "/api/v1/items/#{id}", headers: headers, params: JSON.generate({item: item_params})
+    item = Item.find_by(id: id)
+    expect(response.status).to eq(200)
+    expect(response).to be_successful
+    # require 'pry';binding.pry
+    expect(item.name).to_not eq(previous_name)
+    expect(item.name).to eq("Bubba")
+  end
+
+  it "can update an existing item without merchant id" do
     merchant_id = create(:merchant).id
     id = create(:item, merchant_id: merchant_id).id
     previous_name = Item.last.name
@@ -97,12 +132,25 @@ describe "Internal api Items" do
     expect(item.name).to eq("Bubba")
   end
 
-  it "bad merchant id when checking for item" do
+  it "error when updating item with bad merchant id" do
     merchant_id = create(:merchant).id
     id = create(:item, merchant_id: merchant_id).id
-    item_params = { name: "Bubba", merchant_id: 0 }
+    item_params = { name: "Bubba Soda", description:"Bad Soda", unit_price: 2.01, merchant_id: 0 }
     headers = {"CONTENT_TYPE" => "application/json"}
-    patch "/api/v1/items/1", headers: headers, params: JSON.generate({item: item_params})
+    patch "/api/v1/items/#{id}", headers: headers, params: JSON.generate({item: item_params})
+
+    item = JSON.parse(response.body, symbolize_names: true)
+    expect(response.status).to eq(404)
+    expect(item).to have_key(:errors)
+    expect(item[:errors]).to eq("No item to update")
+  end
+
+  it "error when updating item that does not exist" do
+    merchant_id = create(:merchant).id
+    id = create(:item, merchant_id: merchant_id).id
+    item_params = { name: "Bubba Soda", description:"Bad Soda", unit_price: 2.01 }
+    headers = {"CONTENT_TYPE" => "application/json"}
+    patch "/api/v1/items/99999999", headers: headers, params: JSON.generate({item: item_params})
 
     item = JSON.parse(response.body, symbolize_names: true)
     expect(response.status).to eq(404)
