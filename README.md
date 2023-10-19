@@ -1,4 +1,4 @@
-# Rail-Engine
+# Rail-Engine for Turing Mod 3 Solo Project
 
 This Ruby/Rails application is used to create and test a internal api and run the tests against a suite in Postman
 
