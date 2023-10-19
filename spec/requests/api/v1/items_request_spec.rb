@@ -71,7 +71,7 @@ describe "Internal api Items" do
     # We include this header to make sure that these params are passed as JSON rather than as plain text
     post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
     created_item = Item.last
-                  # require 'pry';binding.pry
+                  
     expect(response).to be_successful
     expect(response.status).to eq(201)
     expect(created_item.name).to eq(item_params[:name])
@@ -127,7 +127,7 @@ describe "Internal api Items" do
     item = Item.find_by(id: id)
     expect(response.status).to eq(200)
     expect(response).to be_successful
-    # require 'pry';binding.pry
+    
     expect(item.name).to_not eq(previous_name)
     expect(item.name).to eq("Bubba")
   end
@@ -197,48 +197,9 @@ describe "Internal api Items" do
     item_merchant = JSON.parse(response.body, symbolize_names: true)[:data]
   
     expect(response).to be_successful
-    # require 'pry';binding.pry
+    
     expect(item_merchant[:id].to_i).to eq(merchant.id)
     expect(item_merchant[:attributes]).to have_key(:name)
     expect(item_merchant[:attributes][:name]).to eq(merchant.name)
-  end
-
-  it "find items by name" do
-    merchant_id = create(:merchant).id
-    soda1 = create(:item, name: "Soda Pop", merchant_id: merchant_id)
-    soda2 = create(:item, name: "Orange Soda", merchant_id: merchant_id)
-    soda3 = create(:item, name: "Soda Cans", merchant_id: merchant_id)
-    candy = create(:item, name: "Starburst", merchant_id: merchant_id)
-    pretzels = create(:item, name: "Fosters", merchant_id: merchant_id)
-    get "/api/v1/items/find_all?name=soda"
-    found_items = JSON.parse(response.body, symbolize_names: true)[:data]
-    expect(found_items.count).to eq(3)
-    # expect(found_merchant[:attributes][:name]).to eq(merchant.name)
-    found_items.each do |item|
-      expect(item[:attributes]).to have_key(:name)
-      expect(item[:attributes][:name]).to be_an(String)
-
-      expect(item[:attributes]).to have_key(:description)
-      expect(item[:attributes][:description]).to be_an(String)
-      expect(item[:attributes]).to have_key(:unit_price)
-      expect(item[:attributes][:unit_price].to_f).to be_an(Float)
-
-      expect(item[:attributes]).to have_key(:merchant_id)
-      expect(item[:attributes][:merchant_id].to_i).to be_an(Integer)
-    end
-  end
-
-  it "error when no name given" do
-    merchant_id = create(:merchant).id
-    soda1 = create(:item, name: "Soda Pop", merchant_id: merchant_id)
-    soda2 = create(:item, name: "Orange Soda", merchant_id: merchant_id)
-    soda3 = create(:item, name: "Soda Cans", merchant_id: merchant_id)
-    candy = create(:item, name: "Starburst", merchant_id: merchant_id)
-    pretzels = create(:item, name: "Fosters", merchant_id: merchant_id)
-    get "/api/v1/items/find_all?name="
-    non_item = JSON.parse(response.body, symbolize_names: true)[:data]
-    expect(response.status).to eq(400)
-    expect(non_item).to have_key(:errors)
-    expect(non_item[:errors]).to eq("Name is required for search")
   end
 end

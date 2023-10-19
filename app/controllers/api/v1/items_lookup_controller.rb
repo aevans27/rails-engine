@@ -9,7 +9,7 @@ class Api::V1::ItemsLookupController < ApplicationController
         render json: ItemSerializer.new(items)
       end
     elsif params[:min_price].present? && params[:max_price].present?
-      if params[:min_price] < 0 || params[:max_price] < 0
+      if params[:min_price].to_f < 0 || params[:max_price].to_f < 0
         render json: {errors: "Not reasonable price range"}, status: 400
       else
 
@@ -46,11 +46,10 @@ class Api::V1::ItemsLookupController < ApplicationController
         end
       end
     elsif params[:min_price].present? && params[:max_price].present?
-      # require 'pry';binding.pry
       if params[:min_price].to_f < 0 || params[:max_price].to_f < 0
-        render json: {data:{errors: "Not reasonable price range"}}, status: 400
+        render json: {errors: "Not reasonable price range"}, status: 400
       elsif params[:min_price].to_f > params[:max_price].to_f
-        render json: {data:{errors: "Not reasonable price range"}}, status: 400
+        render json: {errors: "Not reasonable price range"}, status: 400
       else
 
       end
@@ -60,7 +59,7 @@ class Api::V1::ItemsLookupController < ApplicationController
       else
         item = Item.find_item_by_min(params[:min_price])
         if item == nil
-          render json: {data:{errors: "No item by that name"}}, status: 404
+          render json: {data:{errors: "No item within price range"}}, status: 404
         else
           render json: ItemSerializer.new(item)
         end
@@ -71,7 +70,7 @@ class Api::V1::ItemsLookupController < ApplicationController
       else
         item = Item.find_item_by_max(params[:max_price])
         if item == nil
-          render json: {data:{errors: "No item by that name"}}, status: 404
+          render json: {data:{errors: "No item within price range"}}, status: 404
         else
           render json: ItemSerializer.new(item)
         end
