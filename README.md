@@ -1,24 +1,16 @@
-# README
+# Rail-Engine
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This Ruby/Rails application is used to create and test a internal api and run the tests against a suite in Postman
 
-Things you may want to cover:
+Overview:
 
-* Ruby version
+* Ruby version - 3.2.2
+* Rails version - 7.0.8
 
-* System dependencies
+* Configuration - Just clone, open terminal $install, then update
 
-* Configuration
+* Database creation - Part of the project
 
-* Database creation
+* Database initialization - Run rake db:{drop,create,migrate,seed}
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+* Tests - Run rspec to run the tests.
